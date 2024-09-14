@@ -11,7 +11,6 @@ import {
   Stack,
   Image,
   LinkBox,
-  LinkOverlay,
   Tooltip,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
@@ -85,9 +84,7 @@ const EventItem: React.FC<EventItemProps> = ({ event }) => {
       <CardBody>
         <Stack spacing="2">
           <Heading size="md">
-            <LinkOverlay as={Link} to={`/events/${event.id}`}>
-              {event.short_title}
-            </LinkOverlay>
+            <Link to={`/events/${event.id}`}>{event.short_title}</Link>
           </Heading>
           <Box>
             <Text fontSize="sm" color="gray.600">
@@ -101,16 +98,14 @@ const EventItem: React.FC<EventItemProps> = ({ event }) => {
             label={formatDateTime(event.datetime_utc)}
             placement="bottom-start"
           >
-            <LinkOverlay>
-              <Text
-                fontSize="sm"
-                fontWeight="bold"
-                color="gray.600"
-                justifySelf="end"
-              >
-                {formatDateTime(event.datetime_local)}
-              </Text>
-            </LinkOverlay>
+            <Text
+              fontSize="sm"
+              fontWeight="bold"
+              color="gray.600"
+              justifySelf="end"
+            >
+              {formatDateTime(event.datetime_local)}
+            </Text>
           </Tooltip>
         </Stack>
       </CardBody>
