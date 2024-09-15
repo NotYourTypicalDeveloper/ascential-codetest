@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useReducer } from "react";
 import {
   SimpleGrid,
   Flex,
@@ -12,12 +12,22 @@ import {
   Image,
   LinkBox,
   Tooltip,
+  IconButton,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import Breadcrumbs from "./Breadcrumbs";
 import Error from "./Error";
 import { useSeatGeek } from "../utils/useSeatGeek";
 import { formatDateTime } from "../utils/formatDateTime";
+import { StarIcon } from "@chakra-ui/icons";
+import {
+  favoritesReducer,
+  initFavoritesState,
+} from "../lib/reducers/FavoritesReducer";
+import {
+  FavoritesContext,
+  FavoritesDispatchContext,
+} from "../lib/contexts/FavoritesContext";
 
 export interface Performers {
   image: string;
@@ -42,6 +52,10 @@ interface EventItemProps {
 }
 
 const Events: React.FC = () => {
+  const [favoritesState, dispatch] = useReducer(
+    favoritesReducer,
+    initFavoritesState
+  );
   const { data, error } = useSeatGeek("/events", {
     type: "concert",
     sort: "score.desc",
@@ -59,14 +73,20 @@ const Events: React.FC = () => {
   }
 
   return (
-    <>
-      <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Events" }]} />
-      <SimpleGrid spacing="6" m="6" minChildWidth="350px">
-        {data.events?.map((event: EventProps) => (
-          <EventItem key={event.id.toString()} event={event} />
-        ))}
-      </SimpleGrid>
-    </>
+    <FavoritesContext.Provider value={favoritesState}>
+      <FavoritesDispatchContext.Provider value={dispatch}>
+        <>
+          <Breadcrumbs
+            items={[{ label: "Home", to: "/" }, { label: "Events" }]}
+          />
+          <SimpleGrid spacing="6" m="6" minChildWidth="350px">
+            {data.events?.map((event: EventProps) => (
+              <EventItem key={event.id.toString()} event={event} />
+            ))}
+          </SimpleGrid>
+        </>
+      </FavoritesDispatchContext.Provider>
+    </FavoritesContext.Provider>
   );
 };
 
@@ -86,6 +106,7 @@ const EventItem: React.FC<EventItemProps> = ({ event }) => {
           <Heading size="md">
             <Link to={`/events/${event.id}`}>{event.short_title}</Link>
           </Heading>
+          <IconButton aria-label="Search database" icon={<StarIcon />} />
           <Box>
             <Text fontSize="sm" color="gray.600">
               {event.venue.name_v2}
