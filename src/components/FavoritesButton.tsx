@@ -11,12 +11,15 @@ import {
   ListItem,
 } from "@chakra-ui/react";
 import { useRef } from "react";
+import { StarIcon } from "@chakra-ui/icons";
+import PDFDocument from "./PDFDocument";
 import { Link } from "react-router-dom";
 import { useFavorites } from "../lib/contexts/FavoritesContext";
-import { StarIcon } from "@chakra-ui/icons";
+import { PDFDownloadLink, Text as PDFText } from "@react-pdf/renderer";
 
 const FavoritesButton = () => {
   const { state } = useFavorites();
+  const { favoritesList } = state;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef<HTMLButtonElement | null>(null);
 
@@ -34,11 +37,13 @@ const FavoritesButton = () => {
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
-          <DrawerHeader>Favorite events</DrawerHeader>
+          <DrawerHeader>
+            <h1>Favorite events</h1>
+          </DrawerHeader>
 
           <DrawerBody>
             <UnorderedList>
-              {state.favoritesList.map((eventObj) => (
+              {favoritesList.map((eventObj) => (
                 <ListItem
                   key={`fav-event-${eventObj.id}`}
                   _hover={{ textDecor: "underline", color: "blue" }}
@@ -49,6 +54,32 @@ const FavoritesButton = () => {
                 </ListItem>
               ))}
             </UnorderedList>
+            {/* PDF Download Link */}
+            {favoritesList.length > 0 && (
+              <PDFDownloadLink
+                document={
+                  <PDFDocument
+                    title="Favorite Events"
+                    data={favoritesList}
+                    renderItem={(eventObj) => (
+                      <PDFText>{eventObj.short_title}</PDFText>
+                    )}
+                  />
+                }
+                fileName="favorite-events.pdf"
+              >
+                {({ loading }) => (
+                  <Button
+                    mt={4}
+                    colorScheme="purple"
+                    isLoading={loading}
+                    loadingText="Generating PDF..."
+                  >
+                    Download PDF
+                  </Button>
+                )}
+              </PDFDownloadLink>
+            )}
           </DrawerBody>
         </DrawerContent>
       </Drawer>
