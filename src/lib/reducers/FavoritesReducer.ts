@@ -1,5 +1,5 @@
 import { EventProps } from "../../components/Events";
-
+import { getFavoritesFromLocalStorage } from "../../utils/getDataFromLocalStorage";
 // TS types
 export type IFavoritesState = {
   favoritesList: EventProps[];
@@ -11,7 +11,7 @@ export type IFavoritesAction =
 
 // initial state
 export const initFavoritesState = {
-  favoritesList: [],
+  favoritesList: getFavoritesFromLocalStorage(),
 };
 
 export const favoritesReducer = (

@@ -1,4 +1,10 @@
-import React, { createContext, useContext, ReactNode, useReducer } from "react";
+import React, {
+  createContext,
+  useContext,
+  ReactNode,
+  useReducer,
+  useEffect,
+} from "react";
 import {
   favoritesReducer,
   initFavoritesState,
@@ -19,6 +25,10 @@ export const FavoritesProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [state, dispatch] = useReducer(favoritesReducer, initFavoritesState);
+
+  useEffect(() => {
+    localStorage.setItem("favorites", JSON.stringify(state.favoritesList));
+  }, [state.favoritesList]);
 
   return (
     <FavoritesContext.Provider value={{ state, dispatch }}>
