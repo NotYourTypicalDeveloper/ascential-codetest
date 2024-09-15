@@ -11,11 +11,11 @@ import {
   ListItem,
 } from "@chakra-ui/react";
 import { useRef } from "react";
+import { StarIcon } from "@chakra-ui/icons";
+import PDFDocument from "./PDFDocument";
 import { Link } from "react-router-dom";
 import { useFavorites } from "../lib/contexts/FavoritesContext";
-import { StarIcon } from "@chakra-ui/icons";
 import { PDFDownloadLink, Text as PDFText } from "@react-pdf/renderer";
-import PDFDocument from "./PDFDocument";
 
 const FavoritesButton = () => {
   const { state } = useFavorites();
@@ -62,7 +62,7 @@ const FavoritesButton = () => {
                     title="Favorite Events"
                     data={favoritesList}
                     renderItem={(eventObj) => (
-                      <PDFText>{eventObj.short_title}</PDFText> // Custom rendering for each event
+                      <PDFText>{eventObj.short_title}</PDFText>
                     )}
                   />
                 }
