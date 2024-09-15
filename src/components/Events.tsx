@@ -12,12 +12,20 @@ import {
   Image,
   LinkBox,
   Tooltip,
+  IconButton,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import Breadcrumbs from "./Breadcrumbs";
 import Error from "./Error";
 import { useSeatGeek } from "../utils/useSeatGeek";
 import { formatDateTime } from "../utils/formatDateTime";
+import { StarIcon } from "@chakra-ui/icons";
+
+import {
+  FavoritesProvider,
+  useFavorites,
+} from "../lib/contexts/FavoritesContext";
+import FavoritesButton from "./FavoritesButton";
 
 export interface Performers {
   image: string;
@@ -59,18 +67,33 @@ const Events: React.FC = () => {
   }
 
   return (
-    <>
-      <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Events" }]} />
+    <FavoritesProvider>
+      <Flex alignItems="center" justifyContent="space-between" mr={6}>
+        <Breadcrumbs
+          items={[{ label: "Home", to: "/" }, { label: "Events" }]}
+        />
+        <FavoritesButton />
+      </Flex>
       <SimpleGrid spacing="6" m="6" minChildWidth="350px">
         {data.events?.map((event: EventProps) => (
           <EventItem key={event.id.toString()} event={event} />
         ))}
       </SimpleGrid>
-    </>
+    </FavoritesProvider>
   );
 };
 
 const EventItem: React.FC<EventItemProps> = ({ event }) => {
+  const { state, dispatch } = useFavorites();
+  const isFavorite = state.favoritesList.some((fav) => fav.id === event.id);
+
+  const handleFavClick = (eventObj: EventProps) => {
+    if (isFavorite) {
+      dispatch({ type: "REMOVE_FAVORITE", payload: eventObj.id });
+    } else {
+      dispatch({ type: "ADD_FAVORITE", payload: eventObj });
+    }
+  };
   return (
     <LinkBox
       as={Card}
@@ -86,6 +109,12 @@ const EventItem: React.FC<EventItemProps> = ({ event }) => {
           <Heading size="md">
             <Link to={`/events/${event.id}`}>{event.short_title}</Link>
           </Heading>
+          <IconButton
+            aria-label="Add to favorites"
+            icon={<StarIcon color={isFavorite ? "orange" : "lightGrey"} />}
+            onClick={() => handleFavClick(event)}
+            w="fit-content"
+          />
           <Box>
             <Text fontSize="sm" color="gray.600">
               {event.venue.name_v2}
