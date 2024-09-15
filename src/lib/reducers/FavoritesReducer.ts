@@ -1,13 +1,15 @@
-import { EventProps } from "../../components/Events"; // Adjust the import path as needed
+import { EventProps } from "../../components/Events";
 
-type IFavoritesState = {
+// TS types
+export type IFavoritesState = {
   favoritesList: EventProps[];
 };
 
-type IFavoritesAction =
+export type IFavoritesAction =
   | { type: "ADD_FAVORITE"; payload: EventProps }
   | { type: "REMOVE_FAVORITE"; payload: string };
 
+// initial state
 export const initFavoritesState = {
   favoritesList: [],
 };

@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React from "react";
 import {
   SimpleGrid,
   Flex,
@@ -20,14 +20,12 @@ import Error from "./Error";
 import { useSeatGeek } from "../utils/useSeatGeek";
 import { formatDateTime } from "../utils/formatDateTime";
 import { StarIcon } from "@chakra-ui/icons";
+
 import {
-  favoritesReducer,
-  initFavoritesState,
-} from "../lib/reducers/FavoritesReducer";
-import {
-  FavoritesContext,
-  FavoritesDispatchContext,
+  FavoritesProvider,
+  useFavorites,
 } from "../lib/contexts/FavoritesContext";
+import FavoritesButton from "./FavoritesButton";
 
 export interface Performers {
   image: string;
@@ -52,10 +50,6 @@ interface EventItemProps {
 }
 
 const Events: React.FC = () => {
-  const [favoritesState, dispatch] = useReducer(
-    favoritesReducer,
-    initFavoritesState
-  );
   const { data, error } = useSeatGeek("/events", {
     type: "concert",
     sort: "score.desc",
@@ -73,24 +67,33 @@ const Events: React.FC = () => {
   }
 
   return (
-    <FavoritesContext.Provider value={favoritesState}>
-      <FavoritesDispatchContext.Provider value={dispatch}>
-        <>
-          <Breadcrumbs
-            items={[{ label: "Home", to: "/" }, { label: "Events" }]}
-          />
-          <SimpleGrid spacing="6" m="6" minChildWidth="350px">
-            {data.events?.map((event: EventProps) => (
-              <EventItem key={event.id.toString()} event={event} />
-            ))}
-          </SimpleGrid>
-        </>
-      </FavoritesDispatchContext.Provider>
-    </FavoritesContext.Provider>
+    <FavoritesProvider>
+      <Flex alignItems="center" justifyContent="space-between" mr={6}>
+        <Breadcrumbs
+          items={[{ label: "Home", to: "/" }, { label: "Events" }]}
+        />
+        <FavoritesButton />
+      </Flex>
+      <SimpleGrid spacing="6" m="6" minChildWidth="350px">
+        {data.events?.map((event: EventProps) => (
+          <EventItem key={event.id.toString()} event={event} />
+        ))}
+      </SimpleGrid>
+    </FavoritesProvider>
   );
 };
 
 const EventItem: React.FC<EventItemProps> = ({ event }) => {
+  const { state, dispatch } = useFavorites();
+  const isFavorite = state.favoritesList.some((fav) => fav.id === event.id);
+
+  const handleFavClick = (eventObj: EventProps) => {
+    if (isFavorite) {
+      dispatch({ type: "REMOVE_FAVORITE", payload: eventObj.id });
+    } else {
+      dispatch({ type: "ADD_FAVORITE", payload: eventObj });
+    }
+  };
   return (
     <LinkBox
       as={Card}
@@ -106,7 +109,11 @@ const EventItem: React.FC<EventItemProps> = ({ event }) => {
           <Heading size="md">
             <Link to={`/events/${event.id}`}>{event.short_title}</Link>
           </Heading>
-          <IconButton aria-label="Search database" icon={<StarIcon />} />
+          <IconButton
+            aria-label="Search database"
+            icon={<StarIcon color={isFavorite ? "orange" : "lightGrey"} />}
+            onClick={() => handleFavClick(event)}
+          />
           <Box>
             <Text fontSize="sm" color="gray.600">
               {event.venue.name_v2}
