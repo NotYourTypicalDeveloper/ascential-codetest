@@ -110,9 +110,10 @@ const EventItem: React.FC<EventItemProps> = ({ event }) => {
             <Link to={`/events/${event.id}`}>{event.short_title}</Link>
           </Heading>
           <IconButton
-            aria-label="Search database"
+            aria-label="Add to favorites"
             icon={<StarIcon color={isFavorite ? "orange" : "lightGrey"} />}
             onClick={() => handleFavClick(event)}
+            w="fit-content"
           />
           <Box>
             <Text fontSize="sm" color="gray.600">
